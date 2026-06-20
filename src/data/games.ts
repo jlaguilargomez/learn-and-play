@@ -1,6 +1,23 @@
-import type { GameDefinition } from '../types/game'
+import type { GameCategory, GameDefinition, PairGameDefinition } from '../types/game'
 
-export const games: GameDefinition[] = [
+export const gameCategories: GameCategory[] = [
+  {
+    id: 'choose',
+    title: 'Elige',
+    description: 'Encuentra la respuesta',
+    icon: '☝',
+    accent: '#ef5d60',
+  },
+  {
+    id: 'pairs',
+    title: 'Parejas',
+    description: 'Busca dos iguales',
+    icon: '◉◉',
+    accent: '#9a68b4',
+  },
+]
+
+export const choiceGames: GameDefinition[] = [
   {
     id: 'formas',
     title: 'Las formas',
@@ -103,6 +120,39 @@ export const games: GameDefinition[] = [
         sound: 'sounds/elephant.ogg',
         soundDuration: 1700,
       },
+    ],
+  },
+]
+
+export const pairGames: PairGameDefinition[] = [
+  {
+    id: 'parejas-colores',
+    title: 'Parejas de colores',
+    shortTitle: 'Colores',
+    icon: '●●',
+    accent: '#3185c6',
+    kind: 'color',
+    pairCount: 3,
+    options: [
+      { id: 'rojo', label: 'rojo', spokenLabel: 'rojo', color: '#e94f55' },
+      { id: 'azul', label: 'azul', spokenLabel: 'azul', color: '#3185c6' },
+      { id: 'amarillo', label: 'amarillo', spokenLabel: 'amarillo', color: '#f4c542' },
+      { id: 'verde', label: 'verde', spokenLabel: 'verde', color: '#62a84f' },
+    ],
+  },
+  {
+    id: 'parejas-formas',
+    title: 'Parejas de formas',
+    shortTitle: 'Formas',
+    icon: '■▲',
+    accent: '#f0ad36',
+    kind: 'shape',
+    pairCount: 3,
+    options: [
+      { id: 'circulo', label: 'círculo', spokenLabel: 'círculo', shape: 'circle', color: '#ef5d60' },
+      { id: 'cuadrado', label: 'cuadrado', spokenLabel: 'cuadrado', shape: 'square', color: '#3185c6' },
+      { id: 'triangulo', label: 'triángulo', spokenLabel: 'triángulo', shape: 'triangle', color: '#f4b942' },
+      { id: 'estrella', label: 'estrella', spokenLabel: 'estrella', shape: 'star', color: '#70a84f' },
     ],
   },
 ]

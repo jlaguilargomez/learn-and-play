@@ -28,6 +28,10 @@ del mismo tipo:
 1. Añade sus opciones y metadatos a `src/data/games.ts`.
 2. Si necesita una representación nueva, amplía `GameKind` y `GameVisual.vue`.
 
+La portada agrupa los juegos en categorías. Los juegos de elección usan
+`ChoiceGame.vue`; los juegos de emparejar usan `PairGame.vue` y se registran en
+`pairGames` dentro de `src/data/games.ts`.
+
 ## Créditos de sonido
 
 > Los sonidos de animales están desactivados temporalmente. La voz de las

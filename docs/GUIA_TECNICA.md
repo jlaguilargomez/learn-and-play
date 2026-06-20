@@ -39,6 +39,7 @@ aplicación estática diseñada para:
 ├── src/
 │   ├── components/
 │   │   ├── ChoiceGame.vue
+│   │   ├── PairGame.vue
 │   │   └── GameVisual.vue
 │   ├── data/games.ts
 │   ├── types/game.ts
@@ -53,11 +54,21 @@ La separación importante es:
 
 - `games.ts` contiene contenido y configuración.
 - `ChoiceGame.vue` contiene el comportamiento común.
+- `PairGame.vue` contiene la mecánica de relacionar dos cartas iguales.
 - `GameVisual.vue` traduce datos a una representación visual.
 - `App.vue` se limita a la navegación entre portada y juego.
 
 Este enfoque data-driven evita crear un componente completo para cada
 minijuego que comparte la mecánica «escucha, observa y elige».
+
+La portada añade un nivel de navegación mediante `GameCategory`. Actualmente
+hay dos categorías:
+
+- `choose`: juegos de selección con tres respuestas.
+- `pairs`: juegos de emparejar seis cartas.
+
+Cada categoría apunta a su propio motor, pero ambas reutilizan la misma capa de
+datos visuales.
 
 ## 3. Modelado extensible de minijuegos
 
@@ -172,6 +183,51 @@ Los animales usan emoji. Esto reduce peso y evita licencias de ilustraciones,
 pero su apariencia varía entre sistemas operativos. Una futura dirección sería
 utilizar SVG propios para obtener consistencia visual entre iOS, Android y
 escritorio.
+
+## 5.1 Motor de parejas
+
+`PairGame.vue` implementa una segunda mecánica sin duplicar la representación
+de colores y formas. Cada ronda selecciona tres opciones y crea dos instancias
+de cada una:
+
+```ts
+selectedOptions.flatMap((option) => [
+  { cardId: `${option.id}-a`, pairId: option.id, option },
+  { cardId: `${option.id}-b`, pairId: option.id, option },
+])
+```
+
+La distinción entre `cardId` y `pairId` es importante:
+
+- `cardId` identifica una carta física y permite seleccionar una sola copia.
+- `pairId` expresa la identidad conceptual que deben compartir las dos cartas.
+
+El flujo es:
+
+```text
+ninguna seleccionada
+  → primera carta
+  → segunda carta
+    → mismo pairId: marcar pareja
+    → distinto pairId: mostrar error y liberar ambas
+```
+
+`isChecking` actúa como mutex de interfaz durante la evaluación y los
+temporizadores. Evita que un tercer toque altere el estado antes de resolver
+las dos cartas actuales.
+
+Las parejas encontradas quedan deshabilitadas y visibles. Esta decisión reduce
+la carga de memoria respecto a un memory clásico con cartas ocultas y resulta
+más adecuada para 2–3 años: el aprendizaje es relacionar propiedades, no
+recordar posiciones.
+
+Los minijuegos iniciales son:
+
+- Parejas por color.
+- Parejas por forma.
+
+Ambos reutilizan `GameVisual.vue`, por lo que las reglas gráficas permanecen
+consistentes con los juegos de selección.
 
 ## 6. Audio: voz y sonidos reales
 

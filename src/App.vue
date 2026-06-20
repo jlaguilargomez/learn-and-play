@@ -1,24 +1,45 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ChoiceGame from './components/ChoiceGame.vue'
-import { games } from './data/games'
-import type { GameDefinition } from './types/game'
+import PairGame from './components/PairGame.vue'
+import { choiceGames, gameCategories, pairGames } from './data/games'
+import type { GameCategoryId, GameDefinition, PairGameDefinition } from './types/game'
 
-const activeGame = ref<GameDefinition | null>(null)
+const activeChoiceGame = ref<GameDefinition | null>(null)
+const activePairGame = ref<PairGameDefinition | null>(null)
+const activeCategory = ref<GameCategoryId>('choose')
 const soundEnabled = ref(true)
 
-function openGame(game: GameDefinition) {
-  activeGame.value = game
+const visibleGames = computed(() => (activeCategory.value === 'choose' ? choiceGames : pairGames))
+
+function openGame(game: GameDefinition | PairGameDefinition) {
+  if (activeCategory.value === 'choose') {
+    activeChoiceGame.value = game as GameDefinition
+  } else {
+    activePairGame.value = game as PairGameDefinition
+  }
+}
+
+function closeGame() {
+  activeChoiceGame.value = null
+  activePairGame.value = null
 }
 </script>
 
 <template>
   <div class="app-shell">
     <ChoiceGame
-      v-if="activeGame"
-      :game="activeGame"
+      v-if="activeChoiceGame"
+      :game="activeChoiceGame"
       :sound-enabled="soundEnabled"
-      @back="activeGame = null"
+      @back="closeGame"
+    />
+
+    <PairGame
+      v-else-if="activePairGame"
+      :game="activePairGame"
+      :sound-enabled="soundEnabled"
+      @back="closeGame"
     />
 
     <main v-else class="home-screen">
@@ -63,9 +84,28 @@ function openGame(game: GameDefinition) {
         </div>
       </section>
 
+      <nav class="category-list" aria-label="Categorías de juegos">
+        <button
+          v-for="category in gameCategories"
+          :key="category.id"
+          class="category-card"
+          :class="{ active: activeCategory === category.id }"
+          type="button"
+          :style="{ '--category-accent': category.accent }"
+          :aria-pressed="activeCategory === category.id"
+          @click="activeCategory = category.id"
+        >
+          <span class="category-icon" aria-hidden="true">{{ category.icon }}</span>
+          <span>
+            <strong>{{ category.title }}</strong>
+            <small>{{ category.description }}</small>
+          </span>
+        </button>
+      </nav>
+
       <section class="game-list" aria-label="Minijuegos">
         <button
-          v-for="(game, index) in games"
+          v-for="(game, index) in visibleGames"
           :key="game.id"
           class="game-card"
           type="button"
