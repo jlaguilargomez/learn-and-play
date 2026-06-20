@@ -3,6 +3,9 @@
 Una pequeña colección de minijuegos para acompañar a niños y niñas de 2–3 años
 en el aprendizaje de formas, colores y cantidades.
 
+La arquitectura, PWA, audio, despliegue y decisiones de interacción están
+explicadas en la [guía técnica](docs/GUIA_TECNICA.md).
+
 ## Instalar como aplicación
 
 La web es una PWA y puede utilizarse sin conexión una vez visitada:
