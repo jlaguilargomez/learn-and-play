@@ -20,9 +20,15 @@ del mismo tipo:
 
 ## Despliegue en GitHub Pages
 
-`vite.config.ts` usa rutas relativas (`base: './'`), por lo que el contenido de
-`dist/` puede publicarse tanto en un repositorio de proyecto como en un dominio
-propio.
+El workflow `.github/workflows/deploy-pages.yml` compila y publica la aplicación
+automáticamente cuando se suben cambios a `main`.
+
+La aplicación estará disponible en:
+
+https://jlaguilargomez.github.io/learn-and-play/
+
+`vite.config.ts` usa rutas relativas (`base: './'`), por lo que los recursos
+funcionan bajo la ruta del repositorio y también en un dominio propio.
 
 ```bash
 npm run build
