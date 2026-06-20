@@ -20,6 +20,18 @@ npm install
 npm run dev
 ```
 
+## Tests
+
+```bash
+npm test
+npm run test:watch
+npm run test:coverage
+npm run typecheck
+```
+
+La cobertura global mínima exigida es del 90 %. El despliegue de GitHub Pages
+solo continúa si pasan la cobertura, el tipado y la compilación.
+
 ## Añadir un minijuego
 
 La primera versión usa un motor común de elección visual. Para añadir otro juego

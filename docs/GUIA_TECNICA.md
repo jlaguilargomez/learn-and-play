@@ -489,10 +489,12 @@ Cada `push` a `main` ejecuta:
 
 1. Checkout.
 2. Instalación reproducible con `npm ci`.
-3. Type-check y build mediante `npm run build`.
-4. Configuración de Pages.
-5. Subida de `dist` como artifact.
-6. Despliegue en el entorno `github-pages`.
+3. Suite unitaria y umbrales mediante `npm run test:coverage`.
+4. Type-check explícito mediante `npm run typecheck`.
+5. Build de producción mediante `npm run build`.
+6. Configuración de Pages.
+7. Subida de `dist` como artifact.
+8. Despliegue en el entorno `github-pages`.
 
 El workflow declara permisos mínimos:
 
@@ -606,11 +608,74 @@ Las restricciones del producto han influido directamente en la ingeniería:
 La aplicación evita gamificación agresiva. El feedback confirma el aprendizaje,
 no intenta prolongar artificialmente la sesión.
 
-## 15. Validación realizada
+## 15. Tests automatizados
+
+La aplicación usa Vitest, Vue Test Utils, Happy DOM y el proveedor V8 de
+cobertura. Los comandos disponibles son:
+
+```bash
+npm test
+npm run test:watch
+npm run test:coverage
+npm run typecheck
+```
+
+La cobertura genera salida de terminal y reportes JSON y HTML dentro de
+`coverage/`. El CI exige un mínimo global del 90 % en:
+
+- Statements.
+- Branches.
+- Functions.
+- Lines.
+
+No se fuerzan tests artificiales para CSS, declaraciones de tipos, imágenes o
+sonidos. Esos recursos se validan mediante TypeScript, el build, los tests de
+renderizado y las invariantes de datos.
+
+### Lógica pura y aleatoriedad
+
+La construcción de rondas vive en `src/gameLogic.ts`. Sus funciones reciben un
+generador aleatorio opcional:
+
+```ts
+createChoiceRound(game, avoidId, previousTemperature, random)
+createPairCards(game, random)
+```
+
+En producción se usa `Math.random`. En tests se inyectan secuencias
+deterministas, por lo que se pueden comprobar objetivos, distractores,
+alternancia frío/calor y parejas sin tests probabilísticos.
+
+### Mocks del navegador
+
+La suite proporciona dobles controlados para:
+
+- `speechSynthesis` y `SpeechSynthesisUtterance`.
+- Lista tardía de voces y evento `voiceschanged`.
+- Errores, cancelaciones y excepciones del motor de voz.
+- Temporizadores de feedback y reinicio.
+- Audio nativo mientras las grabaciones animales están desactivadas.
+- Registro del service worker de la PWA.
+
+Los tests de componentes verifican navegación, control global de voz, aciertos,
+errores, bloqueo de pulsaciones simultáneas, progreso, reinicios y todas las
+representaciones visuales. Las invariantes de `games.ts` evitan ids duplicados,
+opciones incompletas o juegos de parejas imposibles.
+
+### Fallos seguros de voz
+
+`useSpeech` resuelve su promesa tanto ante `onend` y `onerror` como si
+`speechSynthesis.speak()` lanza una excepción síncrona. Cancelar, desactivar la
+voz o desmontar el componente también libera la locución activa. De este modo,
+un fallo del sintetizador nunca bloquea la siguiente ronda.
+
+## 16. Validación realizada
 
 Para cada cambio relevante se ejecutó:
 
 ```bash
+npm run test:coverage
+npm run typecheck
 npm run build
 git diff --check
 ```
@@ -627,16 +692,16 @@ La comprobación del navegador incluyó:
 - Estado exitoso del workflow de despliegue.
 - Sincronización entre `HEAD` y `origin/main`.
 
-## 16. Deuda técnica y siguientes pasos
+## 17. Deuda técnica y siguientes pasos
 
-### Tests automatizados
+### Pruebas de navegador
 
-Actualmente las pruebas son manuales. La siguiente inversión recomendable sería:
+La capa unitaria ya cubre la lógica y los componentes. Las siguientes mejoras
+recomendables serían:
 
-- Vitest para selección de rondas y estados.
-- Vue Test Utils para interacción de componentes.
-- Playwright para los flujos principales.
+- Playwright para flujos completos en navegadores reales.
 - Lighthouse CI para PWA, rendimiento y accesibilidad.
+- Pruebas periódicas sobre iOS y Android físicos, especialmente para voz.
 
 ### Gestión de audio
 
@@ -676,7 +741,7 @@ Las mejoras con más impacto serían:
 3. Precargar únicamente el audio de las tres opciones actuales.
 4. Añadir presupuestos de tamaño al workflow.
 
-## 17. Cómo añadir un nuevo juego similar
+## 18. Cómo añadir un nuevo juego similar
 
 Para un juego de vehículos:
 

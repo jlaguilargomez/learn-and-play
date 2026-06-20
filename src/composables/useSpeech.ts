@@ -172,7 +172,11 @@ export function useSpeech(isEnabled: () => boolean) {
       activeUtterance = utterance
       utterance.onend = finish
       utterance.onerror = finish
-      window.speechSynthesis.speak(utterance)
+      try {
+        window.speechSynthesis.speak(utterance)
+      } catch {
+        finish()
+      }
     })
   }
 

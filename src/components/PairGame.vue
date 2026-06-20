@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useSpeech } from '../composables/useSpeech'
-import type { GameOption, PairGameDefinition } from '../types/game'
+import { cardsArePair, createPairCards } from '../gameLogic'
+import type { PairCard } from '../gameLogic'
+import type { PairGameDefinition } from '../types/game'
 import GameVisual from './GameVisual.vue'
-
-interface PairCard {
-  cardId: string
-  pairId: string
-  option: GameOption
-}
 
 const props = defineProps<{
   game: PairGameDefinition
@@ -34,18 +30,8 @@ const feedback = computed(() => {
   return 'Busca dos iguales'
 })
 
-function shuffled<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
-}
-
 function startRound() {
-  const selectedOptions = shuffled(props.game.options).slice(0, props.game.pairCount)
-  cards.value = shuffled(
-    selectedOptions.flatMap((option) => [
-      { cardId: `${option.id}-a`, pairId: option.id, option },
-      { cardId: `${option.id}-b`, pairId: option.id, option },
-    ]),
-  )
+  cards.value = createPairCards(props.game)
   selectedCards.value = []
   matchedPairs.value = []
   state.value = 'idle'
@@ -76,8 +62,8 @@ function selectCard(card: PairCard) {
   const first = cards.value.find((candidate) => candidate.cardId === firstId)
   const second = cards.value.find((candidate) => candidate.cardId === secondId)
 
-  if (first && second && first.pairId === second.pairId) {
-    matchedPairs.value.push(first.pairId)
+  if (cardsArePair(first, second)) {
+    matchedPairs.value.push(first!.pairId)
     state.value = matchedPairs.value.length === props.game.pairCount ? 'complete' : 'match'
     speak(state.value === 'complete' ? '¡Muy bien! Todas las parejas' : '¡Son iguales!')
 

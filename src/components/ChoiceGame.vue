@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSpeech } from '../composables/useSpeech'
+import { createChoiceRound } from '../gameLogic'
 import type { GameDefinition, GameOption } from '../types/game'
 import GameVisual from './GameVisual.vue'
 
@@ -42,41 +43,12 @@ const feedback = computed(() => {
   return prompt.value
 })
 
-function shuffled<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
-}
-
 function pickRound(avoidId?: string) {
-  if (props.game.kind === 'temperature') {
-    const desiredTemperature =
-      previousTemperature === null
-        ? Math.random() < 0.5 ? 'cold' : 'hot'
-        : previousTemperature === 'cold' ? 'hot' : 'cold'
-    const oppositeTemperature = desiredTemperature === 'cold' ? 'hot' : 'cold'
-    const desiredOptions = props.game.options.filter((option) => option.temperature === desiredTemperature)
-    const oppositeOptions = props.game.options.filter((option) => option.temperature === oppositeTemperature)
-
-    target.value = shuffled(desiredOptions)[0] ?? props.game.options[0]
-    targetConcept.value = desiredTemperature === 'cold' ? 'frío' : 'caliente'
-    previousTemperature = desiredTemperature
-    choices.value = shuffled([
-      target.value,
-      shuffled(oppositeOptions)[0] ?? props.game.options[1],
-    ])
-    answerState.value = 'idle'
-    selectedId.value = null
-    isResponding.value = false
-    void nextTick(() => playPrompt())
-    return
-  }
-
-  const pool = props.game.options.filter((option) => option.id !== avoidId)
-  target.value = pool[Math.floor(Math.random() * pool.length)] ?? props.game.options[0]
-  targetConcept.value = target.value.label
-  choices.value = shuffled([
-    target.value,
-    ...shuffled(props.game.options.filter((option) => option.id !== target.value.id)).slice(0, 2),
-  ])
+  const round = createChoiceRound(props.game, avoidId, previousTemperature)
+  target.value = round.target
+  targetConcept.value = round.targetConcept
+  previousTemperature = round.temperature
+  choices.value = round.choices
   answerState.value = 'idle'
   selectedId.value = null
   isResponding.value = false
