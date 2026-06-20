@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GameDefinition, GameOption } from '../types/game'
 import GameVisual from './GameVisual.vue'
 
@@ -18,6 +18,9 @@ const answerState = ref<'idle' | 'right' | 'try-again'>('idle')
 const selectedId = ref<string | null>(null)
 const roundsCompleted = ref(0)
 const celebration = ref(0)
+const isResponding = ref(false)
+let activeAudio: HTMLAudioElement | null = null
+let audioTimeout: number | null = null
 
 const prompt = computed(() => `${props.game.instruction} ${target.value.label}`)
 const feedback = computed(() => {
@@ -39,44 +42,108 @@ function pickRound(avoidId?: string) {
   ])
   answerState.value = 'idle'
   selectedId.value = null
+  isResponding.value = false
 
-  void nextTick(() => speak(prompt.value))
+  void nextTick(() => playPrompt())
 }
 
-function speak(text: string) {
-  if (!props.soundEnabled || !('speechSynthesis' in window)) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'es-ES'
-  utterance.rate = 0.85
-  utterance.pitch = 1.15
-  window.speechSynthesis.speak(utterance)
+function stopAudio() {
+  if (audioTimeout !== null) {
+    window.clearTimeout(audioTimeout)
+    audioTimeout = null
+  }
+
+  if (activeAudio) {
+    activeAudio.pause()
+    activeAudio.currentTime = 0
+    activeAudio = null
+  }
 }
 
-function answer(option: GameOption) {
-  if (answerState.value === 'right') return
+function speak(text: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (!props.soundEnabled || !('speechSynthesis' in window)) {
+      resolve()
+      return
+    }
+
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'es-ES'
+    utterance.rate = 0.85
+    utterance.pitch = 1.15
+    utterance.onend = () => resolve()
+    utterance.onerror = () => resolve()
+    window.speechSynthesis.speak(utterance)
+  })
+}
+
+function playAnimalSound(option: GameOption): Promise<void> {
+  return new Promise((resolve) => {
+    if (!props.soundEnabled || props.game.kind !== 'animal' || !option.sound) {
+      resolve()
+      return
+    }
+
+    stopAudio()
+    const audio = new Audio(new URL(option.sound, document.baseURI).href)
+    activeAudio = audio
+    audio.volume = 0.72
+    audio.preload = 'auto'
+
+    let finished = false
+    const finish = () => {
+      if (finished) return
+      finished = true
+      stopAudio()
+      resolve()
+    }
+
+    audio.onended = finish
+    audio.onerror = finish
+    audioTimeout = window.setTimeout(finish, option.soundDuration ?? 2200)
+    void audio.play().catch(finish)
+  })
+}
+
+async function playPrompt() {
+  await speak(prompt.value)
+  await playAnimalSound(target.value)
+}
+
+async function answer(option: GameOption) {
+  if (answerState.value === 'right' || isResponding.value) return
+  isResponding.value = true
   selectedId.value = option.id
 
   if (option.id !== target.value.id) {
     answerState.value = 'try-again'
-    speak('Prueba otra vez')
+    await playAnimalSound(option)
+    await speak('Prueba otra vez')
     window.setTimeout(() => {
       if (answerState.value === 'try-again') {
         answerState.value = 'idle'
         selectedId.value = null
+        isResponding.value = false
       }
-    }, 850)
+    }, 450)
     return
   }
 
   answerState.value = 'right'
   roundsCompleted.value += 1
   celebration.value += 1
-  speak(`¡Muy bien! ${target.value.label}`)
-  window.setTimeout(() => pickRound(target.value.id), 1200)
+  await playAnimalSound(option)
+  await speak(`¡Muy bien! ${target.value.label}`)
+  window.setTimeout(() => pickRound(target.value.id), 650)
 }
 
 onMounted(() => pickRound())
+
+onBeforeUnmount(() => {
+  stopAudio()
+  window.speechSynthesis?.cancel()
+})
 </script>
 
 <template>
@@ -95,7 +162,7 @@ onMounted(() => pickRound())
     </header>
 
     <section class="game-board" :class="`state-${answerState}`">
-      <button class="prompt-card" type="button" aria-label="Repetir instrucción" @click="speak(prompt)">
+      <button class="prompt-card" type="button" aria-label="Repetir instrucción" @click="playPrompt">
         <span class="speaker" aria-hidden="true">♪</span>
         <strong>{{ feedback }}</strong>
       </button>

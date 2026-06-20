@@ -8,6 +8,8 @@ export interface GameOption {
   shape?: 'circle' | 'square' | 'triangle' | 'star'
   number?: number
   animal?: string
+  sound?: string
+  soundDuration?: number
 }
 
 export interface GameDefinition {

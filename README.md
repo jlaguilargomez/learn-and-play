@@ -25,6 +25,18 @@ del mismo tipo:
 1. Añade sus opciones y metadatos a `src/data/games.ts`.
 2. Si necesita una representación nueva, amplía `GameKind` y `GameVisual.vue`.
 
+## Créditos de sonido
+
+Los sonidos de animales se descargan con la aplicación para poder jugar sin
+conexión. Proceden de Wikimedia Commons:
+
+- Gato: [Maullido de gata hembra joven](https://commons.wikimedia.org/wiki/File:Maullido_de_gata_hembra_joven.ogg), George Miquilena, CC0.
+- Perro: [Voice Test Error](https://commons.wikimedia.org/wiki/File:Voice_Test_Error.wav), Kineticsquid, CC0.
+- Vaca: [Cow in Antefasy](https://commons.wikimedia.org/wiki/File:Cow_in_Antefasy.wav), Gasybeaugosse2020, CC0.
+- Pato: [Domestic duck sound 01](https://commons.wikimedia.org/wiki/File:Domestic_duck_sound_01.wav), Ganesh Mohan T, CC BY-SA 4.0.
+- León: [Lionroar](https://commons.wikimedia.org/wiki/File:Lionroar.wav), Jonathan Growcott et al., CC BY 4.0.
+- Elefante: [Elephant voice - trumpeting](https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg), தகவலுழவன், CC0.
+
 ## Despliegue en GitHub Pages
 
 El workflow `.github/workflows/deploy-pages.yml` compila y publica la aplicación
