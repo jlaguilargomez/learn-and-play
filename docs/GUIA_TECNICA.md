@@ -261,6 +261,59 @@ Hay dos canales de audio distintos:
 - `SpeechSynthesisUtterance` para frases en español.
 - `HTMLAudioElement` para los sonidos de animales.
 
+La voz se gestiona desde `useSpeech.ts`, compartido por todos los motores. El
+composable evita que cada componente configure y cancele la síntesis de forma
+distinta.
+
+### Selección de una voz más natural
+
+`speechSynthesis.getVoices()` no siempre devuelve voces durante la primera
+lectura, especialmente en Safari. El servicio:
+
+1. Consulta inmediatamente las voces disponibles.
+2. Escucha `voiceschanged`.
+3. Actualiza una caché cuando el sistema termina de cargar el catálogo.
+4. Continúa usando `es-ES` como fallback si el catálogo sigue vacío.
+
+Las voces se ordenan mediante una puntuación:
+
+- Prioridad máxima para `es-ES`.
+- Bonificación para voces locales, que funcionan offline.
+- Bonificación para nombres conocidos de voces femeninas de Apple, Google y
+  Microsoft.
+- Fallback a cualquier voz española y, finalmente, a la voz elegida por el
+  navegador.
+
+La selección exacta sigue dependiendo de las voces instaladas en el sistema.
+iOS, Android, Windows y macOS pueden producir resultados diferentes aunque
+reciban la misma configuración.
+
+La locución usa parámetros menos artificiales:
+
+```ts
+utterance.rate = 0.9
+utterance.pitch = 1
+utterance.volume = 1
+```
+
+Antes de hablar se normalizan espacios y puntuación. Las frases sin cierre
+reciben un punto para ayudar al sintetizador a producir una cadencia completa.
+
+### Cancelación segura
+
+El servicio mantiene una única locución activa. Al iniciar otra:
+
+1. Cancela la síntesis anterior.
+2. Resuelve manualmente su promesa.
+3. Registra la nueva locución.
+
+Resolver manualmente es importante porque algunos navegadores no disparan de
+forma consistente `onend` u `onerror` después de `cancel()`. Sin esta protección
+un `await speak(...)` podría bloquear indefinidamente la transición de ronda.
+
+Cuando el usuario desactiva la voz o sale de un juego, el composable cancela y
+resuelve cualquier locución activa.
+
 Los sonidos reales están temporalmente desactivados mediante
 `animalSoundsEnabled = false`. La voz sintética permanece activa. Mantener el
 interruptor junto a la lógica de reproducción permite reactivarlos cuando se

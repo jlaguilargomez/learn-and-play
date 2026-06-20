@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useSpeech } from '../composables/useSpeech'
 import type { GameDefinition, GameOption } from '../types/game'
 import GameVisual from './GameVisual.vue'
 
@@ -26,6 +27,7 @@ let previousTemperature: 'cold' | 'hot' | null = null
 
 // Preparado para reactivarse cuando dispongamos de grabaciones propias.
 const animalSoundsEnabled = false
+const { speak } = useSpeech(() => props.soundEnabled)
 
 const prompt = computed(() => {
   if (props.game.kind === 'temperature') {
@@ -93,24 +95,6 @@ function stopAudio() {
     activeAudio.currentTime = 0
     activeAudio = null
   }
-}
-
-function speak(text: string): Promise<void> {
-  return new Promise((resolve) => {
-    if (!props.soundEnabled || !('speechSynthesis' in window)) {
-      resolve()
-      return
-    }
-
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'es-ES'
-    utterance.rate = 0.85
-    utterance.pitch = 1.15
-    utterance.onend = () => resolve()
-    utterance.onerror = () => resolve()
-    window.speechSynthesis.speak(utterance)
-  })
 }
 
 function playAnimalSound(option: GameOption): Promise<void> {
@@ -181,7 +165,6 @@ onMounted(() => pickRound())
 
 onBeforeUnmount(() => {
   stopAudio()
-  window.speechSynthesis?.cancel()
 })
 </script>
 

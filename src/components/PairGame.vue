@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useSpeech } from '../composables/useSpeech'
 import type { GameOption, PairGameDefinition } from '../types/game'
 import GameVisual from './GameVisual.vue'
 
@@ -23,6 +24,7 @@ const selectedCards = ref<string[]>([])
 const matchedPairs = ref<string[]>([])
 const state = ref<'idle' | 'match' | 'try-again' | 'complete'>('idle')
 const isChecking = ref(false)
+const { speak } = useSpeech(() => props.soundEnabled)
 
 const feedback = computed(() => {
   if (state.value === 'match') return '¡Son iguales!'
@@ -34,16 +36,6 @@ const feedback = computed(() => {
 
 function shuffled<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
-}
-
-function speak(text: string) {
-  if (!props.soundEnabled || !('speechSynthesis' in window)) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'es-ES'
-  utterance.rate = 0.85
-  utterance.pitch = 1.15
-  window.speechSynthesis.speak(utterance)
 }
 
 function startRound() {
@@ -111,7 +103,6 @@ function selectCard(card: PairCard) {
 }
 
 onMounted(startRound)
-onBeforeUnmount(() => window.speechSynthesis?.cancel())
 </script>
 
 <template>
