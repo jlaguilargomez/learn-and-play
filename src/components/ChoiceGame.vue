@@ -22,6 +22,9 @@ const isResponding = ref(false)
 let activeAudio: HTMLAudioElement | null = null
 let audioTimeout: number | null = null
 
+// Preparado para reactivarse cuando dispongamos de grabaciones propias.
+const animalSoundsEnabled = false
+
 const prompt = computed(() => `${props.game.instruction} ${target.value.label}`)
 const feedback = computed(() => {
   if (answerState.value === 'right') return '¡Muy bien!'
@@ -80,7 +83,7 @@ function speak(text: string): Promise<void> {
 
 function playAnimalSound(option: GameOption): Promise<void> {
   return new Promise((resolve) => {
-    if (!props.soundEnabled || props.game.kind !== 'animal' || !option.sound) {
+    if (!animalSoundsEnabled || !props.soundEnabled || props.game.kind !== 'animal' || !option.sound) {
       resolve()
       return
     }

@@ -30,6 +30,10 @@ del mismo tipo:
 
 ## Créditos de sonido
 
+> Los sonidos de animales están desactivados temporalmente. La voz de las
+> instrucciones continúa funcionando. Los archivos y metadatos se conservan
+> para facilitar su sustitución por grabaciones propias.
+
 Los sonidos de animales se descargan con la aplicación para poder jugar sin
 conexión. Proceden de Wikimedia Commons:
 

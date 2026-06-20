@@ -180,6 +180,11 @@ Hay dos canales de audio distintos:
 - `SpeechSynthesisUtterance` para frases en español.
 - `HTMLAudioElement` para los sonidos de animales.
 
+Los sonidos reales están temporalmente desactivados mediante
+`animalSoundsEnabled = false`. La voz sintética permanece activa. Mantener el
+interruptor junto a la lógica de reproducción permite reactivarlos cuando se
+reemplacen los clips sin reconstruir la secuenciación asíncrona.
+
 Ambos se envuelven en promesas para poder secuenciarlos:
 
 ```ts
@@ -235,13 +240,16 @@ tarjeta de instrucción también es un botón para repetirla manualmente.
 ## 7. Audio offline y licencias
 
 Los clips viven en `public/sounds`, por lo que Vite los copia sin transformar.
-Workbox incluye `ogg` y `wav` en el precache:
+Mientras los sonidos están desactivados, Workbox excluye `ogg` y `wav` del
+precache:
 
 ```ts
-globPatterns: ['**/*.{js,css,html,svg,png,woff2,ogg,wav,txt}']
+globPatterns: ['**/*.{js,css,html,svg,png,woff2,txt}']
 ```
 
-Esto permite jugar sin conexión después de instalar o visitar la PWA.
+Así la PWA no descarga varios megabytes de audio que no va a reproducir. Cuando
+se incorporen las grabaciones definitivas, habrá que volver a incluir sus
+extensiones para recuperar el funcionamiento offline.
 
 Los sonidos proceden de Wikimedia Commons. Se verificaron individualmente:
 
