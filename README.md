@@ -32,6 +32,10 @@ La portada agrupa los juegos en categorías. Los juegos de elección usan
 `ChoiceGame.vue`; los juegos de emparejar usan `PairGame.vue` y se registran en
 `pairGames` dentro de `src/data/games.ts`.
 
+`ChoiceGame.vue` también admite rondas binarias basadas en una propiedad. El
+juego «Frío o calor» selecciona un elemento frío y otro caliente y alterna el
+concepto solicitado.
+
 ## Créditos de sonido
 
 > Los sonidos de animales están desactivados temporalmente. La voz de las

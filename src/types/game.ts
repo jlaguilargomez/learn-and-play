@@ -1,4 +1,4 @@
-export type GameKind = 'shape' | 'color' | 'number' | 'animal'
+export type GameKind = 'shape' | 'color' | 'number' | 'animal' | 'temperature'
 export type GameCategoryId = 'choose' | 'pairs'
 
 export interface GameOption {
@@ -9,6 +9,8 @@ export interface GameOption {
   shape?: 'circle' | 'square' | 'triangle' | 'star'
   number?: number
   animal?: string
+  emoji?: string
+  temperature?: 'cold' | 'hot'
   sound?: string
   soundDuration?: number
 }

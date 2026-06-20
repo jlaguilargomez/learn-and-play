@@ -156,6 +156,31 @@ idle → evaluating → right → next round
 Si aparecen más fases, animaciones o niveles, sería razonable convertirlo en
 un reducer explícito o utilizar XState.
 
+### Rondas binarias por propiedad
+
+El juego «Frío o calor» reutiliza `ChoiceGame.vue`, pero no pregunta por la
+identidad de un objeto. Pregunta por una propiedad semántica:
+
+```ts
+temperature?: 'cold' | 'hot'
+```
+
+En cada ronda el motor:
+
+1. Elige el concepto solicitado: frío o caliente.
+2. Selecciona un elemento con esa propiedad.
+3. Selecciona un distractor con la propiedad contraria.
+4. Baraja las dos opciones.
+5. Evalúa la respuesta mediante el `id` del elemento correcto.
+
+El concepto solicitado se alterna después de cada acierto para garantizar que
+el niño practique ambas direcciones y no reciba varias preguntas iguales por
+azar. La pregunta visible y hablada se deriva de `targetConcept`, mientras que
+`target` continúa apuntando a la carta correcta.
+
+Este patrón permite añadir otros contrastes binarios —grande/pequeño,
+arriba/abajo o día/noche— sin crear necesariamente un motor nuevo.
+
 ### Barajado
 
 La implementación actual usa:

@@ -122,6 +122,59 @@ export const choiceGames: GameDefinition[] = [
       },
     ],
   },
+  {
+    id: 'frio-calor',
+    title: 'Frío o calor',
+    shortTitle: 'Frío o calor',
+    instruction: 'Toca algo',
+    icon: '🌡️',
+    accent: '#e36b3d',
+    kind: 'temperature',
+    options: [
+      {
+        id: 'hielo',
+        label: 'cubito de hielo',
+        spokenLabel: 'cubito de hielo',
+        emoji: '🧊',
+        temperature: 'cold',
+      },
+      {
+        id: 'muneco-nieve',
+        label: 'muñeco de nieve',
+        spokenLabel: 'muñeco de nieve',
+        emoji: '☃️',
+        temperature: 'cold',
+      },
+      {
+        id: 'helado',
+        label: 'helado',
+        spokenLabel: 'helado',
+        emoji: '🍦',
+        temperature: 'cold',
+      },
+      {
+        id: 'fuego',
+        label: 'fuego',
+        spokenLabel: 'fuego',
+        emoji: '🔥',
+        temperature: 'hot',
+      },
+      {
+        id: 'sol',
+        label: 'sol',
+        spokenLabel: 'sol',
+        emoji: '☀️',
+        temperature: 'hot',
+      },
+      {
+        id: 'bebida-caliente',
+        label: 'bebida caliente',
+        spokenLabel: 'bebida caliente',
+        emoji: '🍵',
+        temperature: 'hot',
+      },
+    ],
+  },
 ]
 
 export const pairGames: PairGameDefinition[] = [

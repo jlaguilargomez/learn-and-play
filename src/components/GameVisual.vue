@@ -29,7 +29,9 @@ defineProps<{
       </div>
     </div>
 
-    <div v-else class="animal" aria-hidden="true">{{ option.animal }}</div>
+    <div v-else-if="kind === 'animal'" class="emoji-visual" aria-hidden="true">{{ option.animal }}</div>
+
+    <div v-else class="emoji-visual" aria-hidden="true">{{ option.emoji }}</div>
   </div>
 </template>
 
@@ -104,7 +106,7 @@ defineProps<{
   border-radius: 50%;
 }
 
-.animal {
+.emoji-visual {
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   font-size: 6.4rem;
   line-height: 1;
@@ -139,7 +141,7 @@ defineProps<{
     font-size: 4rem;
   }
 
-  .animal {
+  .emoji-visual {
     font-size: 5rem;
   }
 }

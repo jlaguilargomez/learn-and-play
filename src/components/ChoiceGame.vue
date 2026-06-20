@@ -19,13 +19,21 @@ const selectedId = ref<string | null>(null)
 const roundsCompleted = ref(0)
 const celebration = ref(0)
 const isResponding = ref(false)
+const targetConcept = ref('')
 let activeAudio: HTMLAudioElement | null = null
 let audioTimeout: number | null = null
+let previousTemperature: 'cold' | 'hot' | null = null
 
 // Preparado para reactivarse cuando dispongamos de grabaciones propias.
 const animalSoundsEnabled = false
 
-const prompt = computed(() => `${props.game.instruction} ${target.value.label}`)
+const prompt = computed(() => {
+  if (props.game.kind === 'temperature') {
+    return `¿Cuál está ${targetConcept.value}?`
+  }
+
+  return `${props.game.instruction} ${target.value.label}`
+})
 const feedback = computed(() => {
   if (answerState.value === 'right') return '¡Muy bien!'
   if (answerState.value === 'try-again') return 'Prueba otra vez'
@@ -37,8 +45,32 @@ function shuffled<T>(items: T[]): T[] {
 }
 
 function pickRound(avoidId?: string) {
+  if (props.game.kind === 'temperature') {
+    const desiredTemperature =
+      previousTemperature === null
+        ? Math.random() < 0.5 ? 'cold' : 'hot'
+        : previousTemperature === 'cold' ? 'hot' : 'cold'
+    const oppositeTemperature = desiredTemperature === 'cold' ? 'hot' : 'cold'
+    const desiredOptions = props.game.options.filter((option) => option.temperature === desiredTemperature)
+    const oppositeOptions = props.game.options.filter((option) => option.temperature === oppositeTemperature)
+
+    target.value = shuffled(desiredOptions)[0] ?? props.game.options[0]
+    targetConcept.value = desiredTemperature === 'cold' ? 'frío' : 'caliente'
+    previousTemperature = desiredTemperature
+    choices.value = shuffled([
+      target.value,
+      shuffled(oppositeOptions)[0] ?? props.game.options[1],
+    ])
+    answerState.value = 'idle'
+    selectedId.value = null
+    isResponding.value = false
+    void nextTick(() => playPrompt())
+    return
+  }
+
   const pool = props.game.options.filter((option) => option.id !== avoidId)
   target.value = pool[Math.floor(Math.random() * pool.length)] ?? props.game.options[0]
+  targetConcept.value = target.value.label
   choices.value = shuffled([
     target.value,
     ...shuffled(props.game.options.filter((option) => option.id !== target.value.id)).slice(0, 2),
@@ -137,7 +169,11 @@ async function answer(option: GameOption) {
   roundsCompleted.value += 1
   celebration.value += 1
   await playAnimalSound(option)
-  await speak(`¡Muy bien! ${target.value.label}`)
+  await speak(
+    props.game.kind === 'temperature'
+      ? `¡Muy bien! Está ${targetConcept.value}`
+      : `¡Muy bien! ${target.value.label}`,
+  )
   window.setTimeout(() => pickRound(target.value.id), 650)
 }
 
@@ -170,7 +206,7 @@ onBeforeUnmount(() => {
         <strong>{{ feedback }}</strong>
       </button>
 
-      <div class="choices">
+      <div class="choices" :class="{ 'choices--two': choices.length === 2 }">
         <button
           v-for="option in choices"
           :key="option.id"
@@ -308,6 +344,11 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 }
 
+.choices--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 38rem;
+}
+
 .choice-card {
   min-width: 0;
   min-height: 14rem;
@@ -408,6 +449,10 @@ onBeforeUnmount(() => {
   .choices {
     grid-template-columns: 1fr;
     max-width: 21rem;
+  }
+
+  .choices--two {
+    grid-template-columns: 1fr;
   }
 
   .choice-card {
