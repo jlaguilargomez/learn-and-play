@@ -3,6 +3,13 @@
 Una pequeña colección de minijuegos para acompañar a niños y niñas de 2–3 años
 en el aprendizaje de formas, colores y cantidades.
 
+## Instalar como aplicación
+
+La web es una PWA y puede utilizarse sin conexión una vez visitada:
+
+- En iPhone o iPad: Safari → Compartir → Añadir a pantalla de inicio.
+- En Android: menú del navegador → Instalar aplicación.
+
 ## Desarrollo
 
 ```bash
