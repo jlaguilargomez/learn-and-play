@@ -22,12 +22,14 @@ defineProps<{
       :style="{ backgroundColor: option.color }"
     />
 
-    <div v-else class="number-group" :style="{ color: option.color }">
+    <div v-else-if="kind === 'number'" class="number-group" :style="{ color: option.color }">
       <span class="number">{{ option.number }}</span>
       <div class="number-dots" aria-hidden="true">
         <i v-for="dot in option.number" :key="dot" />
       </div>
     </div>
+
+    <div v-else class="animal" aria-hidden="true">{{ option.animal }}</div>
   </div>
 </template>
 
@@ -102,6 +104,14 @@ defineProps<{
   border-radius: 50%;
 }
 
+.animal {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 6.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 0.4rem 0 rgba(55, 48, 37, 0.16));
+  transform: translateY(-0.1rem);
+}
+
 @media (max-width: 420px) {
   .visual {
     min-height: 5rem;
@@ -127,6 +137,10 @@ defineProps<{
 
   .number {
     font-size: 4rem;
+  }
+
+  .animal {
+    font-size: 5rem;
   }
 }
 </style>

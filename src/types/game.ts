@@ -1,4 +1,4 @@
-export type GameKind = 'shape' | 'color' | 'number'
+export type GameKind = 'shape' | 'color' | 'number' | 'animal'
 
 export interface GameOption {
   id: string
@@ -7,6 +7,7 @@ export interface GameOption {
   color?: string
   shape?: 'circle' | 'square' | 'triangle' | 'star'
   number?: number
+  animal?: string
 }
 
 export interface GameDefinition {

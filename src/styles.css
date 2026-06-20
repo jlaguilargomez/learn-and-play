@@ -247,7 +247,7 @@ button:focus-visible {
 
 .game-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.8rem, 2.5vw, 1.5rem);
   max-width: 66rem;
   margin: auto;
@@ -350,6 +350,13 @@ footer {
 footer span {
   color: #ef5d60;
   font-size: 0.6rem;
+}
+
+@media (max-width: 960px) {
+  .game-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 40rem;
+  }
 }
 
 @media (max-width: 680px) {

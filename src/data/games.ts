@@ -46,4 +46,21 @@ export const games: GameDefinition[] = [
       { id: 'cuatro', label: 'cuatro', spokenLabel: 'cuatro', number: 4, color: '#70a84f' },
     ],
   },
+  {
+    id: 'animales',
+    title: 'Los animales',
+    shortTitle: 'Animales',
+    instruction: 'Toca el animal:',
+    icon: '🐾',
+    accent: '#9a68b4',
+    kind: 'animal',
+    options: [
+      { id: 'gato', label: 'gato', spokenLabel: 'gato', animal: '🐱' },
+      { id: 'perro', label: 'perro', spokenLabel: 'perro', animal: '🐶' },
+      { id: 'vaca', label: 'vaca', spokenLabel: 'vaca', animal: '🐮' },
+      { id: 'pato', label: 'pato', spokenLabel: 'pato', animal: '🦆' },
+      { id: 'leon', label: 'león', spokenLabel: 'león', animal: '🦁' },
+      { id: 'elefante', label: 'elefante', spokenLabel: 'elefante', animal: '🐘' },
+    ],
+  },
 ]
