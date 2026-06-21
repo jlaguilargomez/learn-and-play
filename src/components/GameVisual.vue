@@ -79,6 +79,16 @@ defineProps<{
   clip-path: polygon(50% 0%, 61% 34%, 98% 35%, 68% 56%, 79% 92%, 50% 70%, 21% 92%, 32% 56%, 2% 35%, 39% 34%);
 }
 
+.shape--rectangle {
+  width: 7rem;
+  height: 4.5rem;
+  border-radius: 0.45rem;
+}
+
+.shape--heart {
+  clip-path: polygon(50% 92%, 8% 50%, 8% 28%, 20% 10%, 38% 10%, 50% 24%, 62% 10%, 80% 10%, 92% 28%, 92% 50%);
+}
+
 .color-swatch {
   width: 5.8rem;
   height: 5.8rem;
@@ -141,6 +151,11 @@ defineProps<{
     border-right-width: 2.7rem;
     border-bottom-width: 4.8rem;
     border-left-width: 2.7rem;
+  }
+
+  .shape--rectangle {
+    width: 5.7rem;
+    height: 3.7rem;
   }
 
   .color-swatch {

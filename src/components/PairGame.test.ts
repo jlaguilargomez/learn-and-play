@@ -121,14 +121,23 @@ describe('PairGame', () => {
     expect(wrapper.get('.prompt-card').text()).toContain('Busca qué va con cada animal')
     expect(wrapper.text()).toContain('Toca un animal o un hogar')
 
-    const dog = wrapper.get('button[aria-label="perro"]')
-    const kennel = wrapper.get('button[aria-label="caseta del perro"]')
-    await kennel.trigger('click')
-    await dog.trigger('click')
+    const visibleLabels = new Set(
+      wrapper.findAll('.pair-card').map((card) => card.attributes('aria-label')),
+    )
+    const pairId = game.options.find((option) => {
+      if (!option.pairId || !visibleLabels.has(option.label)) return false
+      return game.options.filter((candidate) => candidate.pairId === option.pairId)
+        .every((candidate) => visibleLabels.has(candidate.label))
+    })!.pairId
+    const [animal, home] = game.options.filter((option) => option.pairId === pairId)
+    const animalCard = wrapper.get(`button[aria-label="${animal.label}"]`)
+    const homeCard = wrapper.get(`button[aria-label="${home.label}"]`)
+    await homeCard.trigger('click')
+    await animalCard.trigger('click')
 
     expect(wrapper.get('.prompt-card').text()).toContain('¡Van juntos!')
     expect(speak).toHaveBeenCalledWith('¡Van juntos!')
-    expect(dog.classes()).toContain('matched')
-    expect(kennel.classes()).toContain('matched')
+    expect(animalCard.classes()).toContain('matched')
+    expect(homeCard.classes()).toContain('matched')
   })
 })

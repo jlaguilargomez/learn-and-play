@@ -216,6 +216,25 @@ pero su apariencia varía entre sistemas operativos. Una futura dirección serí
 utilizar SVG propios para obtener consistencia visual entre iOS, Android y
 escritorio.
 
+### Variedad de contenidos sin aumentar la dificultad
+
+Los catálogos contienen más conceptos que los mostrados simultáneamente:
+
+- Formas, colores y números: seis conceptos.
+- Animales: ocho.
+- Frío o calor: cinco ejemplos por cada propiedad.
+- Grande o pequeño: cinco objetos, cada uno con dos escalas.
+- Parejas de color y forma: seis conceptos disponibles.
+- Animal y hogar: cinco asociaciones disponibles.
+
+Una ronda de elección sigue mostrando como máximo tres respuestas, y los
+tableros de parejas mantienen tres relaciones. El catálogo ampliado aporta
+variedad entre rondas sin incrementar la carga cognitiva de cada interacción.
+
+Las formas nuevas —rectángulo y corazón— se dibujan con CSS, como el resto. Los
+nuevos contenidos basados en objetos y animales continúan usando emoji para
+mantener la PWA ligera y completamente offline.
+
 ## 5.1 Motor de parejas
 
 `PairGame.vue` implementa una segunda mecánica sin duplicar la representación

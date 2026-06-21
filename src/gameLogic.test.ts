@@ -42,6 +42,14 @@ describe('createChoiceRound', () => {
     expect(round.choices).toEqual([game.options[0]])
   })
 
+  it('puede escoger también los conceptos añadidos al final del catálogo', () => {
+    const shapes = choiceGames.find((game) => game.id === 'formas')!
+    const sizes = choiceGames.find((game) => game.id === 'grande-pequeno')!
+
+    expect(createChoiceRound(shapes, undefined, null, always(0.99)).target.label).toBe('corazón')
+    expect(createChoiceRound(sizes, undefined, null, always(0.99)).target.label).toBe('oso grande')
+  })
+
   it('alterna entre frío y calor después de la primera ronda', () => {
     const game = choiceGames.find((candidate) => candidate.kind === 'temperature')!
     const cold = createChoiceRound(game, undefined, null, always(0))
@@ -140,7 +148,7 @@ describe('pair logic', () => {
   it('rechaza asociaciones incompletas o insuficientes', () => {
     const game = pairGames.find((candidate) => candidate.mode === 'association')!
     const incomplete: PairGameDefinition = { ...game, options: game.options.slice(0, 5) }
-    const insufficient: PairGameDefinition = { ...game, pairCount: 4 }
+    const insufficient: PairGameDefinition = { ...game, pairCount: 6 }
 
     expect(() => createPairCards(incomplete)).toThrow('no tiene asociaciones válidas suficientes')
     expect(() => createPairCards(insufficient)).toThrow()

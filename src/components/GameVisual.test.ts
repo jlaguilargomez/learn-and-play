@@ -28,6 +28,26 @@ describe('GameVisual', () => {
     expect(color.find('.color-swatch').attributes('style')).toContain('background-color')
   })
 
+  it('renderiza las formas ampliadas', () => {
+    const rectangle = render('shape', {
+      id: 'rectangulo',
+      label: 'rectángulo',
+      spokenLabel: 'rectángulo',
+      shape: 'rectangle',
+      color: '#9a68b4',
+    })
+    const heart = render('shape', {
+      id: 'corazon',
+      label: 'corazón',
+      spokenLabel: 'corazón',
+      shape: 'heart',
+      color: '#de5d83',
+    })
+
+    expect(rectangle.find('.shape--rectangle').exists()).toBe(true)
+    expect(heart.find('.shape--heart').exists()).toBe(true)
+  })
+
   it('renderiza números con la cantidad correcta de puntos', () => {
     const wrapper = render('number', {
       id: 'tres',

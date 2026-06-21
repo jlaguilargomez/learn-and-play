@@ -9,6 +9,26 @@ describe('game data invariants', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
+  it('ofrece variedad moderada sin aumentar las opciones simultáneas', () => {
+    const expectedMinimums = new Map([
+      ['formas', 6],
+      ['colores', 6],
+      ['numeros', 6],
+      ['animales', 8],
+      ['frio-calor', 10],
+      ['grande-pequeno', 10],
+    ])
+
+    for (const game of choiceGames) {
+      expect(game.options.length).toBeGreaterThanOrEqual(expectedMinimums.get(game.id) ?? 1)
+    }
+
+    expect(pairGames.find((game) => game.id === 'parejas-colores')?.options).toHaveLength(6)
+    expect(pairGames.find((game) => game.id === 'parejas-formas')?.options).toHaveLength(6)
+    expect(pairGames.find((game) => game.id === 'animal-hogar')?.options).toHaveLength(10)
+    expect(pairGames.every((game) => game.pairCount === 3)).toBe(true)
+  })
+
   it('define correctamente cada opción según su tipo', () => {
     for (const game of choiceGames) {
       expect(game.options.length).toBeGreaterThan(0)
@@ -40,7 +60,9 @@ describe('game data invariants', () => {
       expect(game.options.length).toBeGreaterThanOrEqual(game.pairCount)
       if (game.mode === 'association') {
         expect(game.kind).toBe('association')
-        expect(new Set(game.options.map((option) => option.pairId)).size).toBe(game.pairCount)
+        expect(new Set(game.options.map((option) => option.pairId)).size).toBeGreaterThanOrEqual(
+          game.pairCount,
+        )
       } else {
         expect(['shape', 'color']).toContain(game.kind)
       }

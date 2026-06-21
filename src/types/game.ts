@@ -6,7 +6,7 @@ export interface GameOption {
   label: string
   spokenLabel: string
   color?: string
-  shape?: 'circle' | 'square' | 'triangle' | 'star'
+  shape?: 'circle' | 'square' | 'triangle' | 'star' | 'rectangle' | 'heart'
   number?: number
   animal?: string
   emoji?: string
