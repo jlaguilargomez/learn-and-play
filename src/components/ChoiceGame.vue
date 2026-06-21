@@ -25,14 +25,18 @@ const targetConcept = ref('')
 let activeAudio: HTMLAudioElement | null = null
 let audioTimeout: number | null = null
 let previousTemperature: 'cold' | 'hot' | null = null
+let previousSize: 'small' | 'large' | null = null
+let previousSizeObjectId: string | undefined
 
 // Preparado para reactivarse cuando dispongamos de grabaciones propias.
 const animalSoundsEnabled = false
 const { speak } = useSpeech(() => props.soundEnabled)
 
 const prompt = computed(() => {
-  if (props.game.kind === 'temperature') {
-    return `¿Cuál está ${targetConcept.value}?`
+  if (props.game.kind === 'temperature' || props.game.kind === 'size') {
+    return props.game.kind === 'size'
+      ? `¿Cuál es ${targetConcept.value}?`
+      : `¿Cuál está ${targetConcept.value}?`
   }
 
   return `${props.game.instruction} ${target.value.label}`
@@ -44,10 +48,18 @@ const feedback = computed(() => {
 })
 
 function pickRound(avoidId?: string) {
-  const round = createChoiceRound(props.game, avoidId, previousTemperature)
+  const round = createChoiceRound(
+    props.game,
+    props.game.kind === 'size' ? previousSizeObjectId : avoidId,
+    previousTemperature,
+    Math.random,
+    previousSize,
+  )
   target.value = round.target
   targetConcept.value = round.targetConcept
   previousTemperature = round.temperature
+  previousSize = round.size
+  previousSizeObjectId = props.game.kind === 'size' ? round.target.pairId : previousSizeObjectId
   choices.value = round.choices
   answerState.value = 'idle'
   selectedId.value = null
@@ -128,6 +140,8 @@ async function answer(option: GameOption) {
   await speak(
     props.game.kind === 'temperature'
       ? `¡Muy bien! Está ${targetConcept.value}`
+      : props.game.kind === 'size'
+        ? `¡Muy bien! Es ${targetConcept.value}`
       : `¡Muy bien! ${target.value.label}`,
   )
   window.setTimeout(() => pickRound(target.value.id), 650)

@@ -55,4 +55,34 @@ describe('GameVisual', () => {
       emoji: '🧊',
     }).text()).toContain('🧊')
   })
+
+  it('diferencia visualmente objetos pequeños y renderiza asociaciones', () => {
+    const small = render('size', {
+      id: 'pelota-pequena',
+      pairId: 'pelota',
+      label: 'pelota pequeña',
+      spokenLabel: 'pelota pequeña',
+      emoji: '⚽',
+      size: 'small',
+    })
+    const large = render('size', {
+      id: 'pelota-grande',
+      pairId: 'pelota',
+      label: 'pelota grande',
+      spokenLabel: 'pelota grande',
+      emoji: '⚽',
+      size: 'large',
+    })
+    const association = render('association', {
+      id: 'nido',
+      pairId: 'pajaro-nido',
+      label: 'nido',
+      spokenLabel: 'nido',
+      emoji: '🪹',
+    })
+
+    expect(small.find('.emoji-visual--small').exists()).toBe(true)
+    expect(large.find('.emoji-visual--small').exists()).toBe(false)
+    expect(association.text()).toContain('🪹')
+  })
 })

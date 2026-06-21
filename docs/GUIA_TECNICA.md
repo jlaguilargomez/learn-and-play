@@ -158,11 +158,13 @@ un reducer explícito o utilizar XState.
 
 ### Rondas binarias por propiedad
 
-El juego «Frío o calor» reutiliza `ChoiceGame.vue`, pero no pregunta por la
-identidad de un objeto. Pregunta por una propiedad semántica:
+Los juegos «Frío o calor» y «Grande o pequeño» reutilizan `ChoiceGame.vue`,
+pero no preguntan por la identidad de un objeto. Preguntan por una propiedad
+semántica:
 
 ```ts
 temperature?: 'cold' | 'hot'
+size?: 'small' | 'large'
 ```
 
 En cada ronda el motor:
@@ -178,20 +180,25 @@ el niño practique ambas direcciones y no reciba varias preguntas iguales por
 azar. La pregunta visible y hablada se deriva de `targetConcept`, mientras que
 `target` continúa apuntando a la carta correcta.
 
-Este patrón permite añadir otros contrastes binarios —grande/pequeño,
-arriba/abajo o día/noche— sin crear necesariamente un motor nuevo.
+En el juego de tamaños, las dos cartas representan el mismo objeto. Solo cambia
+su escala. Esta restricción evita enseñar asociaciones accidentales como
+«elefante significa grande» y permite concentrarse exclusivamente en el
+contraste grande/pequeño. Tras un acierto cambia el objeto y se alterna el
+concepto solicitado.
+
+Este patrón permite añadir otros contrastes binarios —arriba/abajo o
+día/noche— sin crear necesariamente un motor nuevo.
 
 ### Barajado
 
-La implementación actual usa:
+La implementación usa Fisher-Yates y acepta un generador aleatorio inyectable:
 
 ```ts
-[...items].sort(() => Math.random() - 0.5)
+shuffled(items, random)
 ```
 
-Es suficiente para una experiencia infantil no competitiva, pero no produce
-una distribución matemáticamente uniforme. Para juegos evaluables o análisis
-estadístico debería sustituirse por Fisher-Yates.
+En producción `random` es `Math.random`. En tests se sustituye por una función
+determinista para comprobar rondas concretas sin depender del azar.
 
 ## 5. Representación visual desacoplada
 
@@ -246,12 +253,18 @@ la carga de memoria respecto a un memory clásico con cartas ocultas y resulta
 más adecuada para 2–3 años: el aprendizaje es relacionar propiedades, no
 recordar posiciones.
 
-Los minijuegos iniciales son:
+Los juegos admiten dos modos:
 
-- Parejas por color.
-- Parejas por forma.
+- `identical`: las dos cartas contienen el mismo concepto, como color o forma.
+- `association`: las cartas son distintas, pero comparten un `pairId`
+  conceptual.
 
-Ambos reutilizan `GameVisual.vue`, por lo que las reglas gráficas permanecen
+«Animal y su hogar» usa el segundo modo para relacionar perro–caseta,
+pájaro–nido y abeja–colmena. La selección puede comenzar por cualquiera de las
+dos cartas. El feedback cambia de «¡Son iguales!» a «¡Van juntos!» para no
+confundir identidad con relación.
+
+Todos reutilizan `GameVisual.vue`, por lo que las reglas gráficas permanecen
 consistentes con los juegos de selección.
 
 ## 6. Audio: voz y sonidos reales
@@ -638,13 +651,14 @@ La construcción de rondas vive en `src/gameLogic.ts`. Sus funciones reciben un
 generador aleatorio opcional:
 
 ```ts
-createChoiceRound(game, avoidId, previousTemperature, random)
+createChoiceRound(game, avoidId, previousTemperature, random, previousSize)
 createPairCards(game, random)
 ```
 
 En producción se usa `Math.random`. En tests se inyectan secuencias
 deterministas, por lo que se pueden comprobar objetivos, distractores,
-alternancia frío/calor y parejas sin tests probabilísticos.
+alternancia frío/calor, alternancia de tamaños y asociaciones sin tests
+probabilísticos.
 
 ### Mocks del navegador
 

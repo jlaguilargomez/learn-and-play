@@ -69,6 +69,29 @@ describe('createChoiceRound', () => {
     expect(() => createChoiceRound(empty)).toThrow('necesita al menos una opción')
     expect(() => createChoiceRound(incomplete)).toThrow('necesita opciones frías y calientes')
   })
+
+  it('crea comparaciones del mismo objeto y alterna pequeño y grande', () => {
+    const game = choiceGames.find((candidate) => candidate.kind === 'size')!
+    const small = createChoiceRound(game, undefined, null, always(0), null)
+    const large = createChoiceRound(game, small.target.pairId, null, always(0), small.size)
+
+    expect(small.size).toBe('small')
+    expect(small.targetConcept).toBe('pequeño')
+    expect(new Set(small.choices.map((option) => option.pairId))).toEqual(new Set(['pelota']))
+    expect(small.choices.map((option) => option.size).sort()).toEqual(['large', 'small'])
+
+    expect(large.size).toBe('large')
+    expect(large.targetConcept).toBe('grande')
+    expect(large.target.pairId).not.toBe(small.target.pairId)
+  })
+
+  it('rechaza comparaciones de tamaño incompletas', () => {
+    const game = choiceGames.find((candidate) => candidate.kind === 'size')!
+    const invalid: GameDefinition = { ...game, options: [game.options[0]] }
+    expect(() => createChoiceRound(invalid, undefined, null, always(0))).toThrow(
+      'necesita objetos con tamaño pequeño y grande',
+    )
+  })
 })
 
 describe('pair logic', () => {
@@ -98,5 +121,28 @@ describe('pair logic', () => {
     expect(cardsArePair(first, second)).toBe(false)
     expect(cardsArePair(first, first)).toBe(false)
     expect(cardsArePair(undefined, third)).toBe(false)
+  })
+
+  it('crea asociaciones con dos conceptos diferentes por pareja', () => {
+    const game = pairGames.find((candidate) => candidate.mode === 'association')!
+    const cards = createPairCards(game, always(0))
+
+    expect(cards).toHaveLength(6)
+    for (const pairId of new Set(cards.map((card) => card.pairId))) {
+      const pair = cards.filter((card) => card.pairId === pairId)
+      expect(pair).toHaveLength(2)
+      expect(pair[0].option.id).not.toBe(pair[1].option.id)
+      expect(cardsArePair(pair[0], pair[1])).toBe(true)
+      expect(cardsArePair(pair[1], pair[0])).toBe(true)
+    }
+  })
+
+  it('rechaza asociaciones incompletas o insuficientes', () => {
+    const game = pairGames.find((candidate) => candidate.mode === 'association')!
+    const incomplete: PairGameDefinition = { ...game, options: game.options.slice(0, 5) }
+    const insufficient: PairGameDefinition = { ...game, pairCount: 4 }
+
+    expect(() => createPairCards(incomplete)).toThrow('no tiene asociaciones válidas suficientes')
+    expect(() => createPairCards(insufficient)).toThrow()
   })
 })

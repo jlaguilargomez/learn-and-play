@@ -7,6 +7,7 @@ export interface ChoiceRound {
   target: GameOption
   targetConcept: string
   temperature: 'cold' | 'hot' | null
+  size: 'small' | 'large' | null
 }
 
 export interface PairCard {
@@ -31,6 +32,7 @@ export function createChoiceRound(
   avoidId?: string,
   previousTemperature: 'cold' | 'hot' | null = null,
   random: RandomSource = Math.random,
+  previousSize: 'small' | 'large' | null = null,
 ): ChoiceRound {
   if (game.options.length === 0) {
     throw new Error(`El juego "${game.id}" necesita al menos una opción`)
@@ -56,6 +58,34 @@ export function createChoiceRound(
       target,
       targetConcept: temperature === 'cold' ? 'frío' : 'caliente',
       temperature,
+      size: null,
+      choices: shuffled([target, opposite], random),
+    }
+  }
+
+  if (game.kind === 'size') {
+    const objectIds = [...new Set(game.options.map((option) => option.pairId))]
+      .filter((id): id is string => Boolean(id))
+    const availableObjectIds = objectIds.filter((id) => id !== avoidId)
+    const objectPool = availableObjectIds.length > 0 ? availableObjectIds : objectIds
+    const objectId = objectPool[Math.floor(random() * objectPool.length)]
+    const objectOptions = game.options.filter((option) => option.pairId === objectId)
+    const size =
+      previousSize === null
+        ? random() < 0.5 ? 'small' : 'large'
+        : previousSize === 'small' ? 'large' : 'small'
+    const target = objectOptions.find((option) => option.size === size)
+    const opposite = objectOptions.find((option) => option.size !== size)
+
+    if (!objectId || !target || !opposite) {
+      throw new Error(`El juego "${game.id}" necesita objetos con tamaño pequeño y grande`)
+    }
+
+    return {
+      target,
+      targetConcept: size === 'small' ? 'pequeño' : 'grande',
+      temperature: null,
+      size,
       choices: shuffled([target, opposite], random),
     }
   }
@@ -72,6 +102,7 @@ export function createChoiceRound(
     target,
     targetConcept: target.label,
     temperature: null,
+    size: null,
     choices: shuffled([target, ...distractors], random),
   }
 }
@@ -82,6 +113,32 @@ export function createPairCards(
 ): PairCard[] {
   if (game.pairCount < 1 || game.options.length < game.pairCount) {
     throw new Error(`El juego "${game.id}" no tiene suficientes opciones para sus parejas`)
+  }
+
+  if (game.mode === 'association') {
+    const pairIds = [...new Set(game.options.map((option) => option.pairId))]
+      .filter((id): id is string => Boolean(id))
+
+    if (
+      pairIds.length < game.pairCount
+      || pairIds.some((pairId) => game.options.filter((option) => option.pairId === pairId).length !== 2)
+    ) {
+      throw new Error(`El juego "${game.id}" no tiene asociaciones válidas suficientes`)
+    }
+
+    const selectedPairIds = shuffled(pairIds, random).slice(0, game.pairCount)
+    return shuffled(
+      selectedPairIds.flatMap((pairId) =>
+        game.options
+          .filter((option) => option.pairId === pairId)
+          .map((option, index) => ({
+            cardId: `${option.id}-${index}`,
+            pairId,
+            option,
+          })),
+      ),
+      random,
+    )
   }
 
   const selectedOptions = shuffled(game.options, random).slice(0, game.pairCount)

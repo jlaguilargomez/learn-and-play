@@ -25,6 +25,11 @@ describe('game data invariants', () => {
           expect(option.emoji).toBeTruthy()
           expect(['cold', 'hot']).toContain(option.temperature)
         }
+        if (game.kind === 'size') {
+          expect(option.emoji).toBeTruthy()
+          expect(option.pairId).toBeTruthy()
+          expect(['small', 'large']).toContain(option.size)
+        }
       }
     }
   })
@@ -33,7 +38,12 @@ describe('game data invariants', () => {
     for (const game of pairGames) {
       expect(game.pairCount).toBeGreaterThan(0)
       expect(game.options.length).toBeGreaterThanOrEqual(game.pairCount)
-      expect(['shape', 'color']).toContain(game.kind)
+      if (game.mode === 'association') {
+        expect(game.kind).toBe('association')
+        expect(new Set(game.options.map((option) => option.pairId)).size).toBe(game.pairCount)
+      } else {
+        expect(['shape', 'color']).toContain(game.kind)
+      }
     }
   })
 })

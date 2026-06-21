@@ -31,7 +31,14 @@ defineProps<{
 
     <div v-else-if="kind === 'animal'" class="emoji-visual" aria-hidden="true">{{ option.animal }}</div>
 
-    <div v-else class="emoji-visual" aria-hidden="true">{{ option.emoji }}</div>
+    <div
+      v-else
+      class="emoji-visual"
+      :class="{ 'emoji-visual--small': kind === 'size' && option.size === 'small' }"
+      aria-hidden="true"
+    >
+      {{ option.emoji }}
+    </div>
   </div>
 </template>
 
@@ -114,6 +121,10 @@ defineProps<{
   transform: translateY(-0.1rem);
 }
 
+.emoji-visual--small {
+  font-size: 3.5rem;
+}
+
 @media (max-width: 420px) {
   .visual {
     min-height: 5rem;
@@ -143,6 +154,10 @@ defineProps<{
 
   .emoji-visual {
     font-size: 5rem;
+  }
+
+  .emoji-visual--small {
+    font-size: 2.8rem;
   }
 }
 </style>

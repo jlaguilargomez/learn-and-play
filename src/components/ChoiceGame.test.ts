@@ -103,4 +103,26 @@ describe('ChoiceGame', () => {
     wrapper.unmount()
     expect(pause).not.toHaveBeenCalled()
   })
+
+  it('alterna pequeño y grande y cambia de objeto tras acertar', async () => {
+    const game = choiceGames.find((candidate) => candidate.kind === 'size')!
+    const wrapper = mount(ChoiceGame, {
+      props: { game, soundEnabled: true },
+    })
+    await flushPromises()
+
+    expect(wrapper.get('.prompt-card').text()).toContain('¿Cuál es pequeño?')
+    expect(wrapper.findAll('.choice-card')).toHaveLength(2)
+    expect(new Set(wrapper.findAll('.choice-card').map((card) => card.attributes('aria-label')))).toEqual(
+      new Set(['pelota pequeña', 'pelota grande']),
+    )
+
+    await wrapper.get('button[aria-label="pelota pequeña"]').trigger('click')
+    expect(speak).toHaveBeenCalledWith('¡Muy bien! Es pequeño')
+
+    await vi.advanceTimersByTimeAsync(650)
+    await flushPromises()
+    expect(wrapper.get('.prompt-card').text()).toContain('¿Cuál es grande?')
+    expect(wrapper.findAll('.choice-card').map((card) => card.attributes('aria-label'))).toContain('manzana grande')
+  })
 })

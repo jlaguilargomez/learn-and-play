@@ -110,4 +110,25 @@ describe('PairGame', () => {
     await cards[0].trigger('click')
     expect(wrapper.findAll('.pair-card.matched')).toHaveLength(2)
   })
+
+  it('relaciona animal y hogar en cualquier orden con textos asociativos', async () => {
+    const game = pairGames.find((candidate) => candidate.mode === 'association')!
+    const wrapper = mount(PairGame, {
+      props: { game, soundEnabled: true },
+    })
+    await flushPromises()
+
+    expect(wrapper.get('.prompt-card').text()).toContain('Busca qué va con cada animal')
+    expect(wrapper.text()).toContain('Toca un animal o un hogar')
+
+    const dog = wrapper.get('button[aria-label="perro"]')
+    const kennel = wrapper.get('button[aria-label="caseta del perro"]')
+    await kennel.trigger('click')
+    await dog.trigger('click')
+
+    expect(wrapper.get('.prompt-card').text()).toContain('¡Van juntos!')
+    expect(speak).toHaveBeenCalledWith('¡Van juntos!')
+    expect(dog.classes()).toContain('matched')
+    expect(kennel.classes()).toContain('matched')
+  })
 })

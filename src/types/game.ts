@@ -1,4 +1,4 @@
-export type GameKind = 'shape' | 'color' | 'number' | 'animal' | 'temperature'
+export type GameKind = 'shape' | 'color' | 'number' | 'animal' | 'temperature' | 'size' | 'association'
 export type GameCategoryId = 'choose' | 'pairs'
 
 export interface GameOption {
@@ -11,6 +11,8 @@ export interface GameOption {
   animal?: string
   emoji?: string
   temperature?: 'cold' | 'hot'
+  size?: 'small' | 'large'
+  pairId?: string
   sound?: string
   soundDuration?: number
 }
@@ -32,7 +34,8 @@ export interface PairGameDefinition {
   shortTitle: string
   icon: string
   accent: string
-  kind: 'shape' | 'color'
+  kind: 'shape' | 'color' | 'association'
+  mode?: 'identical' | 'association'
   pairCount: number
   options: GameOption[]
 }

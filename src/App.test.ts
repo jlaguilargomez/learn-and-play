@@ -12,10 +12,10 @@ describe('App', () => {
   it('muestra juegos, cambia de categoría y vuelve al menú', async () => {
     const wrapper = mount(App)
     expect(wrapper.get('h1').text()).toBe('¿A qué jugamos?')
-    expect(wrapper.findAll('.game-card')).toHaveLength(5)
+    expect(wrapper.findAll('.game-card')).toHaveLength(6)
 
     await wrapper.findAll('.category-card')[1].trigger('click')
-    expect(wrapper.findAll('.game-card')).toHaveLength(2)
+    expect(wrapper.findAll('.game-card')).toHaveLength(3)
     expect(wrapper.text()).toContain('Colores')
 
     await wrapper.findAll('.game-card')[0].trigger('click')

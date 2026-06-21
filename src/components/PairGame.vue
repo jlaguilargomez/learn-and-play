@@ -21,13 +21,14 @@ const matchedPairs = ref<string[]>([])
 const state = ref<'idle' | 'match' | 'try-again' | 'complete'>('idle')
 const isChecking = ref(false)
 const { speak } = useSpeech(() => props.soundEnabled)
+const isAssociation = computed(() => props.game.mode === 'association')
 
 const feedback = computed(() => {
-  if (state.value === 'match') return '¡Son iguales!'
+  if (state.value === 'match') return isAssociation.value ? '¡Van juntos!' : '¡Son iguales!'
   if (state.value === 'try-again') return 'Busca otra pareja'
   if (state.value === 'complete') return '¡Todas las parejas!'
   if (selectedCards.value.length === 1) return 'Ahora busca su pareja'
-  return 'Busca dos iguales'
+  return isAssociation.value ? 'Busca qué va con cada animal' : 'Busca dos iguales'
 })
 
 function startRound() {
@@ -36,7 +37,7 @@ function startRound() {
   matchedPairs.value = []
   state.value = 'idle'
   isChecking.value = false
-  void nextTick(() => speak('Busca dos iguales'))
+  void nextTick(() => speak(feedback.value))
 }
 
 function isSelected(card: PairCard) {
@@ -65,7 +66,11 @@ function selectCard(card: PairCard) {
   if (cardsArePair(first, second)) {
     matchedPairs.value.push(first!.pairId)
     state.value = matchedPairs.value.length === props.game.pairCount ? 'complete' : 'match'
-    speak(state.value === 'complete' ? '¡Muy bien! Todas las parejas' : '¡Son iguales!')
+    speak(
+      state.value === 'complete'
+        ? '¡Muy bien! Todas las parejas'
+        : isAssociation.value ? '¡Van juntos!' : '¡Son iguales!',
+    )
 
     window.setTimeout(() => {
       selectedCards.value = []
@@ -132,7 +137,11 @@ onMounted(startRound)
         </button>
       </div>
 
-      <p class="grownup-note">Toca una tarjeta y después otra que sea igual.</p>
+      <p class="grownup-note">
+        {{ isAssociation
+          ? 'Toca un animal o un hogar y después busca lo que va con él.'
+          : 'Toca una tarjeta y después otra que sea igual.' }}
+      </p>
     </section>
   </main>
 </template>
